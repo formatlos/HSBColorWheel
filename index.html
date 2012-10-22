@@ -11,31 +11,51 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
+        <style>
+
+            body {
+                font-family: Arial;
+                font-size: 11px;
+                font-weight: bold;
+                line-height: 1.5;
+            }
+
+            #controls {
+                display: block;
+                height: 130px;
+                background-color: #ffffff;
+            }
+
+            #container {
+                position: absolute;
+                top:130px;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: #cccccc;
+
+            }
+
+            .label {
+                position: absolute;
+            }
+        </style>
+
     </head>
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
         <![endif]-->
 
-
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.0.min.js"><\/script>')</script>
+        <script>window.jQuery || document.write('<script src="js/libs/jquery-1.8.0.min.js"><\/script>')</script>
+        <script src="js/libs/MinimalComps-0.1.js"></script>
+        <script src="js/DemoApp.js"></script>
         <script src="js/HSBColorWheel.js"></script>
 
+
         <script>
-
-
-            var colorpicker = new HSBColorWheel($('body'), 200, 50, 0, 'inner');
-            colorpicker.onChange(function(hsb, rgb){
-                console.log(hsb, rgb);
-            });
-
-
-            colorpicker.setRGB({r:0, g:128, b:255});
-            colorpicker.setPosition('50%','50%');
-            //colorpicker.setHSB({h:360, s:0.5, b:0.5});
-
-
+            var app = new DemoApp();
         </script>
     </body>
 </html>

@@ -126,14 +126,29 @@ HSBColorWheel = (function (window, $, undefined) {
          * @type {Number}
          * @private
          */
-        var _innerRadius = innerRadius || 50;
+        var _innerRadius = Math.floor(innerRadius || 50);
 
         /**
          * outer radius
          * @type {Number}
          * @private
          */
-        var _outerRadius = outerRadius || 200;
+        var _outerRadius = Math.floor(outerRadius || 200);
+
+
+        function setRadius(outer, inner)
+        {
+            outer = Math.floor(outer);
+            inner = Math.floor(inner);
+
+            if((outer != undefined && outer != _outerRadius) || (inner != undefined && inner != _innerRadius))
+            {
+                _innerRadius = inner;
+                _outerRadius = outer;
+                update();
+            }
+        }
+
 
 
         /**
@@ -141,7 +156,19 @@ HSBColorWheel = (function (window, $, undefined) {
          * @type {Number}
          * @private
          */
-        var _spacing = spacing || 0;
+        var _spacing = Math.floor(spacing || 0);
+
+        function setSpacing(p)
+        {
+            p = Math.floor(p);
+
+            if(p != _spacing)
+            {
+                _spacing = p;
+                update();
+            }
+        }
+
 
         /**
          * change callback method
@@ -158,6 +185,31 @@ HSBColorWheel = (function (window, $, undefined) {
          */
         var _shadows = shadowMode;
 
+        function setShadowMode(p)
+        {
+            if(p != _shadows)
+            {
+                _shadows = p;
+                update();
+            }
+        }
+
+
+        /**
+         * size for the dropshadow
+         * @type {Number}
+         * @private
+         */
+        var _dropShadowSize = 10;
+
+        /**
+         * dropshadow color
+         * @type {Number}
+         * @private
+         */
+        var _dropShadowCol1 = 0x77000000;
+        var _dropShadowCol2 = 0x00000000;
+
 
 
 
@@ -172,56 +224,50 @@ HSBColorWheel = (function (window, $, undefined) {
             var outer = _outerRadius;
 
 
+
             // HUE color picker
             if(!_hPicker)
             {
-                _hPicker = new ColorPickerItem(_$el, 'h', outer+1, outer - tmpH-1);
+                _hPicker = new ColorPickerItem(_$el, 'h', outer, outer - tmpH);
                 _hPicker.onChange(function(){_handlePickerChange(_hPicker)});
             }
 
             //
-            if(_shadows != null && _shadows != undefined)
-            {
-                var dropshadow = 20;
-                _shadowDisplay = new ShadowDisplay(_$el, outer+dropshadow);
-                _shadowDisplay.addShadow(outer-1, 0x77000000, 0x00000000, dropshadow);
-            }
 
             outer -= tmpH;
-            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
-
 
             // SATURATION color picker
             if(!_sPicker)
             {
-                _sPicker = new ColorPickerItem(_$el, 's', outer+1, outer - tmpH);
+                _sPicker = new ColorPickerItem(_$el, 's', outer, outer - tmpH);
                 _sPicker.onChange(function(){_handlePickerChange(_sPicker)});
 
             }
             outer -= tmpH;
-            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
 
 
             // BRIGHTNESS color picker
             if(!_bPicker)
             {
-                _bPicker = new ColorPickerItem(_$el, 'b', outer+1, outer - tmpH -1);
+                _bPicker = new ColorPickerItem(_$el, 'b', outer, outer - tmpH);
                 _bPicker.onChange(function(){_handlePickerChange(_bPicker)});
             }
 
             outer -= tmpH;
-            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
 
             // color display
             if(!_colorSwatch)
             {
-                _colorSwatch = new ColorSwatch(_$el, outer+1);
+                _colorSwatch = new ColorSwatch(_$el, outer);
+            }
+
+            //
+            if(!_shadowDisplay)
+            {
+                _shadowDisplay = new ShadowDisplay(_$el, outer+_dropShadowSize);
             }
 
             _$body.on('mousedown' + _namespace, _handleMouseDown);
@@ -231,6 +277,7 @@ HSBColorWheel = (function (window, $, undefined) {
             _$el.on('mouseenter' + _namespace, _handleMouseEnter);
             _$el.on('mouseleave' + _namespace, _handleMouseLeave);
 
+            update();
             updateControlsFromValues();
         };
 
@@ -242,6 +289,56 @@ HSBColorWheel = (function (window, $, undefined) {
 
 
     // public methods:
+
+        /**
+         * clean up everything
+         */
+        function update ()
+        {
+            var tmpH = Math.floor(((_outerRadius - _innerRadius) - 3 * _spacing) / 3);
+            var outer = _outerRadius;
+            var offset = 0.5;
+
+            // HUE color picker
+            _hPicker.setRadius(outer, outer - tmpH);
+
+            //
+            _shadowDisplay.clear();
+            if(_shadows == 'inner' || _shadows == 'outer')
+            {
+                _shadowDisplay.setRadius(outer + _dropShadowSize);
+                _shadowDisplay.addShadow(outer-offset, _dropShadowCol1, _dropShadowCol2, _dropShadowSize);
+            }
+
+            outer -= tmpH;
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer+offset, _dropShadowCol1, _dropShadowCol2, -_dropShadowSize);
+            outer -= _spacing;
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer-offset, _dropShadowCol1, _dropShadowCol2, _dropShadowSize);
+
+
+            // SATURATION color picker
+            _sPicker.setRadius(outer, outer - tmpH);
+
+
+            outer -= tmpH;
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer+offset, _dropShadowCol1, _dropShadowCol2, -_dropShadowSize);
+            outer -= _spacing;
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer-offset, _dropShadowCol1, _dropShadowCol2, _dropShadowSize);
+
+
+            // BRIGHTNESS color picker
+            _bPicker.setRadius(outer, outer - tmpH);
+
+            outer -= tmpH;
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer+offset, _dropShadowCol1, _dropShadowCol2, -_dropShadowSize);
+            outer -= _spacing;
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer-offset, _dropShadowCol1, _dropShadowCol2, _dropShadowSize);
+
+            // color display
+            _colorSwatch.setRadius(outer);
+
+
+        }
 
 
         /**
@@ -509,6 +606,9 @@ HSBColorWheel = (function (window, $, undefined) {
         this.setHSB = setHSB;
         this.getHSB = getHSB;
         this.setPosition = setPosition;
+        this.setRadius = setRadius;
+        this.setShadowMode = setShadowMode;
+        this.setSpacing = setSpacing;
     }
 
 
@@ -609,14 +709,14 @@ HSBColorWheel = (function (window, $, undefined) {
          * @type {Number}
          * @private
          */
-        var _innerRadius = innerRadius;
+        var _innerRadius = innerRadius - 0.5;
 
         /**
          * the outer radius
          * @type {Number}
          * @private
          */
-        var _outerRadius = outerRadius;
+        var _outerRadius = outerRadius + 0.5;
 
         /**
          *
@@ -624,6 +724,22 @@ HSBColorWheel = (function (window, $, undefined) {
          * @private
          */
         var _size = _outerRadius * 2;
+
+
+        function setRadius(outer, inner)
+        {
+            outer+=0.5;
+            inner-=0.5;
+
+            if(outer != _outerRadius || inner != _innerRadius)
+            {
+                _innerRadius = inner;
+                _outerRadius = outer;
+                _size = _outerRadius * 2;
+                _center = new Point(_outerRadius, _outerRadius);
+                update();
+            }
+        }
 
         /**
          * center of the circle
@@ -648,7 +764,7 @@ HSBColorWheel = (function (window, $, undefined) {
         function setColor(p)
         {
             _color = p;
-            _update();
+            _updateColor();
         }
 
         /**
@@ -693,7 +809,7 @@ HSBColorWheel = (function (window, $, undefined) {
          */
         function initialize ()
         {
-            _$el = $('<div></div>').prependTo($target);
+            _$el = $('<div class="hsbcolorwheel-item"></div>').appendTo($target);
             _$canvasContainer = $('<div></div>').appendTo(_$el);
 
             //
@@ -702,8 +818,6 @@ HSBColorWheel = (function (window, $, undefined) {
                 _$canvasColor = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').appendTo(_$canvasContainer);
                 _$canvasColor.css({
                     'position': 'absolute',
-                    'margin-top': -_outerRadius + 'px',
-                    'margin-left': -_outerRadius + 'px',
                     '-webkit-user-select': 'none'
                 });
                 _canvasColorContext = _$canvasColor.get(0).getContext('2d');
@@ -714,36 +828,78 @@ HSBColorWheel = (function (window, $, undefined) {
             _$canvas = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').appendTo(_$canvasContainer);
             _$canvas.css({
                 'position': 'absolute',
-                'margin-top': -_outerRadius + 'px',
-                'margin-left': -_outerRadius + 'px',
                 '-webkit-user-select': 'none'
             });
             _canvasContext = _$canvas.get(0).getContext('2d');
 
             //
-            var arrowH = (_outerRadius - _innerRadius) / 3;
-            var arrowW = arrowH / 6;
+
 
             _$arrow = $('<div></div>').appendTo(_$el);
             _$arrow.css({
                 'position': 'absolute',
-                'margin-top': -_outerRadius + 'px',
                 'width': '0px',
                 'height': '0px',
                 'opacity': '0.0',
                 'border-style': 'solid',
-                'border-width': arrowH.toFixed(0) + 'px '+arrowW.toFixed(0)+'px 0 '+arrowW.toFixed(0)+'px',
                 'border-color': '#000000 transparent transparent transparent'
             });
 
             //
-            _redraw();
-            _update();
+            update();
 
         };
         initialize();
 
         // public methods:
+
+        function update ()
+        {
+            var canvas;
+
+
+            // check if  size changed
+            canvas = _$canvas.get(0);
+
+            if(canvas.width != _size)
+            {
+                canvas.width = _size;
+                canvas.height = _size;
+            }
+            _$canvas.css({
+                'margin-top': -_outerRadius.toFixed(2) + 'px',
+                'margin-left': -_outerRadius.toFixed(2) + 'px'
+            });
+
+            //
+            if(_$canvasColor)
+            {
+                canvas = _$canvasColor.get(0);
+
+                if(canvas.width != _size)
+                {
+                    canvas.width = _size;
+                    canvas.height = _size;
+                }
+                _$canvasColor.css({
+                    'margin-top': -_outerRadius.toFixed(2) + 'px',
+                    'margin-left': -_outerRadius.toFixed(2) + 'px'
+                });
+            }
+
+            //
+            var arrowH = (_outerRadius - _innerRadius) / 3;
+            var arrowW = arrowH / 6;
+
+            _$arrow.css({
+                'margin-top': -_outerRadius.toFixed(2) + 'px',
+                'border-width': arrowH.toFixed(0) + 'px '+arrowW.toFixed(0)+'px 0 '+arrowW.toFixed(0)+'px'
+            });
+
+            _redraw();
+            _updateColor();
+        }
+
 
         /**
          * clean up everything
@@ -827,7 +983,7 @@ HSBColorWheel = (function (window, $, undefined) {
 
         // private methods:
 
-        function _update()
+        function _updateColor()
         {
             if(_colorMixing)
             {
@@ -935,6 +1091,7 @@ HSBColorWheel = (function (window, $, undefined) {
         this.isOver = isOver;
         this.onChange = onChange;
         this.finalize = finalize;
+        this.setRadius = setRadius;
 
     }
 
@@ -954,7 +1111,19 @@ HSBColorWheel = (function (window, $, undefined) {
          * @type {Number}
          * @private
          */
-        var _radius = radius;
+        var _radius = radius+0.5;
+
+        function setRadius(p)
+        {
+            p += 0.5;
+
+            if(_radius != p)
+            {
+                _radius = p;
+                _size = _radius*2;
+                update();
+            }
+        }
 
         /**
          * the size
@@ -984,8 +1153,8 @@ HSBColorWheel = (function (window, $, undefined) {
             _$el = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').prependTo($target);
             _$el.css({
                 'position': 'absolute',
-                'margin-top': -_radius + 'px',
-                'margin-left': -_radius + 'px'
+                'margin-top': -_radius.toFixed(2) + 'px',
+                'margin-left': -_radius.toFixed(2) + 'px'
             });
             _context2d = _$el.get(0).getContext('2d');
 
@@ -1013,6 +1182,19 @@ HSBColorWheel = (function (window, $, undefined) {
          */
         function update()
         {
+            // check if  size changed
+            var canvas = _$el.get(0);
+
+            if(canvas.width != _size)
+            {
+                canvas.width = _size;
+                canvas.height = _size;
+            }
+            _$el.css({
+                'margin-top': -_radius.toFixed(2) + 'px',
+                'margin-left': -_radius.toFixed(2) + 'px'
+            });
+
             _context2d.clearRect(0, 0, _size, _size);
             _context2d.fillStyle = ColorUtils.uintToWebString(_color);
             _context2d.beginPath();
@@ -1025,6 +1207,7 @@ HSBColorWheel = (function (window, $, undefined) {
          * API
          */
         this.setColor = setColor;
+        this.setRadius = setRadius;
         this.finalize = finalize;
     }
 
@@ -1047,6 +1230,16 @@ HSBColorWheel = (function (window, $, undefined) {
          */
         var _radius = radius;
 
+        function setRadius(p)
+        {
+            if(_radius != p)
+            {
+                _radius = p;
+                _size = _radius*2;
+                update();
+            }
+        }
+
         /**
          * the size
          * @type {Number}
@@ -1059,16 +1252,39 @@ HSBColorWheel = (function (window, $, undefined) {
          */
         function initialize ()
         {
-            _$el = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').prependTo($target);
+            _$el = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').appendTo($target);
             _$el.css({
                 'position': 'absolute',
-                'margin-top': -_radius + 'px',
-                'margin-left': -_radius + 'px'
+                'margin-top': -_radius.toFixed(2) + 'px',
+                'margin-left': -_radius.toFixed(2) + 'px'
             });
             _context2d = _$el.get(0).getContext('2d');
 
         };
         initialize();
+
+
+        /**
+         * update
+         */
+        function update()
+        {
+            // check if  size changed
+            var canvas = _$el.get(0);
+
+            if(canvas.width != _size)
+            {
+                canvas.width = _size;
+                canvas.height = _size;
+                clear();
+            }
+            _$el.css({
+                'margin-top': -_radius.toFixed(2) + 'px',
+                'margin-left': -_radius.toFixed(2) + 'px'
+            });
+
+        }
+
 
         function addShadow(radius, col1, col2, size)
         {
@@ -1113,6 +1329,7 @@ HSBColorWheel = (function (window, $, undefined) {
          * API
          */
         this.clear = clear;
+        this.setRadius = setRadius;
         this.addShadow = addShadow;
         this.finalize = finalize;
     }
@@ -1489,8 +1706,8 @@ HSBColorWheel = (function (window, $, undefined) {
 
                 for (i = 0;i<m;i+=4)
                 {
-                    distance.x = pos.x - center.x;
-                    distance.y = pos.y - center.y;
+                    distance.x = pos.x - center.x + 0.5;
+                    distance.y = pos.y - center.y + 0.5;
                     cur_radius = distance.length();
 
                     if (cur_radius >= innerRadius && cur_radius <= outerRadius)
@@ -1542,8 +1759,8 @@ HSBColorWheel = (function (window, $, undefined) {
 
                 for (i = 0;i<m;i+=4)
                 {
-                    distance.x = pos.x - center.x;
-                    distance.y = pos.y - center.y;
+                    distance.x = pos.x - center.x + 0.5;
+                    distance.y = pos.y - center.y + 0.5;
                     cur_radius = distance.length();
 
                     if (cur_radius >= innerRadius && cur_radius <= outerRadius)
@@ -1596,8 +1813,8 @@ HSBColorWheel = (function (window, $, undefined) {
 
                 for (i = 0;i<m;i+=4)
                 {
-                    distance.x = pos.x - center.x;
-                    distance.y = pos.y - center.y;
+                    distance.x = pos.x - center.x + 0.5;
+                    distance.y = pos.y - center.y + 0.5;
                     cur_radius = distance.length();
 
                     if (cur_radius >= innerRadius && cur_radius <= outerRadius)
