@@ -721,6 +721,9 @@ HSBColorWheel = (function (window, $, undefined) {
             _canvasContext = _$canvas.get(0).getContext('2d');
 
             //
+            var arrowH = (_outerRadius - _innerRadius) / 3;
+            var arrowW = arrowH / 6;
+
             _$arrow = $('<div></div>').appendTo(_$el);
             _$arrow.css({
                 'position': 'absolute',
@@ -729,7 +732,7 @@ HSBColorWheel = (function (window, $, undefined) {
                 'height': '0px',
                 'opacity': '0.0',
                 'border-style': 'solid',
-                'border-width': '15px 3px 0 3px',
+                'border-width': arrowH.toFixed(0) + 'px '+arrowW.toFixed(0)+'px 0 '+arrowW.toFixed(0)+'px',
                 'border-color': '#000000 transparent transparent transparent'
             });
 
@@ -877,22 +880,6 @@ HSBColorWheel = (function (window, $, undefined) {
             }
         }
 
-        function addShadow(radius, col1, col2, size)
-        {
-            var gradient;
-
-            gradient = _canvasContext.createRadialGradient(_center.x, _center.y, radius, _center.x, _center.y, radius + size);
-            gradient.addColorStop(0, ColorUtils.uintToRGBAString(col1));
-            gradient.addColorStop(1, ColorUtils.uintToRGBAString(col2));
-
-            _canvasContext.fillStyle = gradient;
-            _canvasContext.beginPath();
-            _canvasContext.arc(_center.x, _center.y, radius, 0, 2*Math.PI, false);
-            _canvasContext.arc(_center.x, _center.y, radius + size, 0, 2*Math.PI, true);
-            _canvasContext.fill();
-        }
-
-
         function setRotation(value)
         {
             _rotation = value;
@@ -948,7 +935,6 @@ HSBColorWheel = (function (window, $, undefined) {
         this.isOver = isOver;
         this.onChange = onChange;
         this.finalize = finalize;
-        this.addShadow = addShadow;
 
     }
 

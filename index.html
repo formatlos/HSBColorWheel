@@ -8,7 +8,8 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title></title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
 
     </head>
     <body>
@@ -24,7 +25,7 @@
         <script>
 
 
-            var colorpicker = new HSBColorWheel($('body'), 400, 100, 0, 'inner');
+            var colorpicker = new HSBColorWheel($('body'), 200, 50, 0, 'inner');
             colorpicker.onChange(function(hsb, rgb){
                 console.log(hsb, rgb);
             });
