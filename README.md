@@ -42,7 +42,7 @@ This code creates a color wheel with outer radius of 400px, a inner radius of 10
 
 ### Change log ###
 
-2010 04 24 - **rev1**
+2012 10 22 - **rev1**
 
 * demo app
 * shadows refactoring
@@ -52,6 +52,6 @@ This code creates a color wheel with outer radius of 400px, a inner radius of 10
 ** setShadowMode(mode)
 * improved rendering
 
-2010 04 24 - **initial commit**
+2012 10 18 - **initial commit**
 
 * First alpha release
