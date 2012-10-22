@@ -7,6 +7,10 @@ Two years ago I did some interface experiments because I always wanted to have s
 I came up with the [HSB Color Wheel](http://blog.formatlos.de/2010/03/27/hsb-color-wheel/). Finally I ported it to HTML5.
 
 
+### Demo ###
+[http://play.formatlos.de/hsb-color-wheel-html5/](http://play.formatlos.de/hsb-color-wheel-html5/)
+
+
 ### Usage ###
 
 
@@ -42,16 +46,16 @@ This code creates a color wheel with outer radius of 400px, a inner radius of 10
 
 ### Change log ###
 
-2012 10 22 - **rev1**
+2012-10-22 - **rev1**
 
 * demo app
 * shadows refactoring
 * added setter functions
-** setRadius(outer, inner)
-** setSpacing(spacing)
-** setShadowMode(mode)
+    * setRadius(outer, inner)
+    * setSpacing(spacing)
+    * setShadowMode(mode)
 * improved rendering
 
-2012 10 18 - **initial commit**
+2012-10-18 - **initial commit**
 
 * First alpha release
