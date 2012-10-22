@@ -175,7 +175,7 @@ HSBColorWheel = (function (window, $, undefined) {
             // HUE color picker
             if(!_hPicker)
             {
-                _hPicker = new ColorPickerItem(_$el, 'h', outer, outer - tmpH);
+                _hPicker = new ColorPickerItem(_$el, 'h', outer+1, outer - tmpH-1);
                 _hPicker.onChange(function(){_handlePickerChange(_hPicker)});
             }
 
@@ -209,7 +209,7 @@ HSBColorWheel = (function (window, $, undefined) {
             // BRIGHTNESS color picker
             if(!_bPicker)
             {
-                _bPicker = new ColorPickerItem(_$el, 'b', outer+1, outer - tmpH);
+                _bPicker = new ColorPickerItem(_$el, 'b', outer+1, outer - tmpH -1);
                 _bPicker.onChange(function(){_handlePickerChange(_bPicker)});
             }
 
@@ -832,7 +832,7 @@ HSBColorWheel = (function (window, $, undefined) {
 
                 if(_type == 'h')
                 {
-                    GraphicsUtils.drawCircleSegmentSpectrum(_canvasContext, 180, 360+180, _outerRadius, _innerRadius, _center);
+                    GraphicsUtils.drawCircleSpectrum(_canvasContext, _outerRadius, _innerRadius, _center);
                 }
                 else if(_type == 's')
                 {
@@ -865,7 +865,7 @@ HSBColorWheel = (function (window, $, undefined) {
 
             if(_type == 'h')
             {
-                GraphicsUtils.drawCircleSegmentSpectrum(_canvasContext, 180, 360+180, _outerRadius, _innerRadius, _center);
+                GraphicsUtils.drawCircleSpectrum(_canvasContext, _outerRadius, _innerRadius, _center);
             }
             else if(_type == 's')
             {
@@ -1484,6 +1484,56 @@ HSBColorWheel = (function (window, $, undefined) {
 
                     ++i;
                 }
+            },
+
+            drawCircleSpectrum: function(gfx, outerRadius, innerRadius, center)
+            {
+                outerRadius = outerRadius || 100;
+                innerRadius = innerRadius || 0;
+                if(!center) center = new Point();
+
+                var w = outerRadius*2;
+                var imgData = gfx.createImageData(w,w);
+                var pos = new Point();
+                var distance = new Point();
+                var cur_radius, degree, factor;
+                var i, rgb;
+                var m = imgData.data.length;
+
+
+                for (i = 0;i<m;i+=4)
+                {
+                    distance.x = pos.x - center.x;
+                    distance.y = pos.y - center.y;
+                    cur_radius = distance.length();
+
+                    if (cur_radius >= innerRadius && cur_radius <= outerRadius)
+                    {
+                        degree = Math.atan2(distance.y, distance.x) * MathUtils.RAD_TO_DEG;
+                        degree = MathUtils.normalizeAngle(degree+90);
+                        rgb = ColorUtils.HSBtoRGB(degree, 1.0, 1.0);
+
+                        // soften pixel that are less than a pixel away from radius
+                        factor = 1.0;
+                        if(cur_radius < innerRadius+1) factor =  (cur_radius-innerRadius);
+                        else if(cur_radius > outerRadius-1) factor =  (outerRadius-cur_radius);
+
+                        //
+                        imgData.data[i+0]=rgb[0];
+                        imgData.data[i+1]=rgb[1];
+                        imgData.data[i+2]=rgb[2];
+                        imgData.data[i+3]= 255 * factor;
+                    }
+
+                    //
+                    pos.x++;
+                    if(pos.x == w)
+                    {
+                        pos.x = 0;
+                        pos.y++;
+                    }
+                }
+                gfx.putImageData(imgData,0,0);
             },
 
             drawCircleGradient: function(gfx, color, outerRadius, innerRadius, center)
