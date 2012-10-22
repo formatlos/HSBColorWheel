@@ -3,7 +3,7 @@
  */
 
 
-HSBColorWheel = (function (window, $) {
+HSBColorWheel = (function (window, $, undefined) {
 
 
     /*******************************************
@@ -68,6 +68,13 @@ HSBColorWheel = (function (window, $) {
          * @private
          */
         var _colorSwatch = null;
+
+        /**
+         * shadow display
+         * @type {ShadowDisplay}
+         * @private
+         */
+        var _shadowDisplay = null;
 
 
         /**
@@ -164,6 +171,7 @@ HSBColorWheel = (function (window, $) {
             var tmpH = Math.floor(((_outerRadius - _innerRadius) - 3 * _spacing) / 3);
             var outer = _outerRadius;
 
+
             // HUE color picker
             if(!_hPicker)
             {
@@ -171,10 +179,18 @@ HSBColorWheel = (function (window, $) {
                 _hPicker.onChange(function(){_handlePickerChange(_hPicker)});
             }
 
+            //
+            if(_shadows != null && _shadows != undefined)
+            {
+                var dropshadow = 20;
+                _shadowDisplay = new ShadowDisplay(_$el, outer+dropshadow);
+                _shadowDisplay.addShadow(outer-1, 0x77000000, 0x00000000, dropshadow);
+            }
+
             outer -= tmpH;
-            if(_shadows == 'inner') _hPicker.addShadow(outer, 0x77000000, 0x00000000, -10);
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _hPicker.addShadow(outer, 0x77000000, 0x00000000, 10);
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
 
 
             // SATURATION color picker
@@ -185,9 +201,9 @@ HSBColorWheel = (function (window, $) {
 
             }
             outer -= tmpH;
-            if(_shadows == 'inner') _hPicker.addShadow(outer, 0x77000000, 0x00000000, -10);
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _hPicker.addShadow(outer, 0x77000000, 0x00000000, 10);
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
 
 
             // BRIGHTNESS color picker
@@ -198,9 +214,9 @@ HSBColorWheel = (function (window, $) {
             }
 
             outer -= tmpH;
-            if(_shadows == 'inner') _hPicker.addShadow(outer, 0x77000000, 0x00000000, -10);
+            if(_shadows == 'inner') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, -10);
             outer -= _spacing;
-            if(_shadows == 'outer') _hPicker.addShadow(outer, 0x77000000, 0x00000000, 10);
+            if(_shadows == 'outer') _shadowDisplay.addShadow(outer, 0x77000000, 0x00000000, 10);
 
             // color display
             if(!_colorSwatch)
@@ -1027,6 +1043,95 @@ HSBColorWheel = (function (window, $) {
     }
 
 
+
+    /*******************************************
+     * @class ShadowDisplay
+     *******************************************/
+    function ShadowDisplay($target, radius)
+    {
+
+        // html element
+        var _$el = null;
+        var _context2d = null;
+
+        /**
+         * the radius
+         * @type {Number}
+         * @private
+         */
+        var _radius = radius;
+
+        /**
+         * the size
+         * @type {Number}
+         * @private
+         */
+        var _size = _radius*2;
+
+        /**
+         * init
+         */
+        function initialize ()
+        {
+            _$el = $('<canvas width="'+_size+'" height="'+_size+'"></canvas>').prependTo($target);
+            _$el.css({
+                'position': 'absolute',
+                'margin-top': -_radius + 'px',
+                'margin-left': -_radius + 'px'
+            });
+            _context2d = _$el.get(0).getContext('2d');
+
+        };
+        initialize();
+
+        function addShadow(radius, col1, col2, size)
+        {
+            var gradient;
+
+            gradient = _context2d.createRadialGradient(_radius, _radius, radius, _radius, _radius, radius + size);
+            gradient.addColorStop(0, ColorUtils.uintToRGBAString(col1));
+            gradient.addColorStop(1, ColorUtils.uintToRGBAString(col2));
+
+            _context2d.fillStyle = gradient;
+            _context2d.beginPath();
+            _context2d.arc(_radius, _radius, radius, 0, 2 * Math.PI, false);
+            _context2d.arc(_radius, _radius, radius + size, 0, 2 * Math.PI, true);
+            _context2d.fill();
+        }
+
+
+        /**
+         * clean up everything
+         */
+        function finalize ()
+        {
+            _context2d = null;
+
+            if(_$el)
+            {
+                _$el.remove();
+                _$el = null;
+            }
+
+        }
+
+        /**
+         * clear
+         */
+        function clear()
+        {
+            _context2d.clearRect(0, 0, _size, _size);
+        }
+
+        /**
+         * API
+         */
+        this.clear = clear;
+        this.addShadow = addShadow;
+        this.finalize = finalize;
+    }
+
+
     /*******************************************
      * @class ColorUtils
      *******************************************/
@@ -1422,9 +1527,6 @@ HSBColorWheel = (function (window, $) {
                         imgData.data[i+1]=g;
                         imgData.data[i+2]=b;
                         imgData.data[i+3]= 255 * factor * degree;
-
-
-
                     }
 
                     //
