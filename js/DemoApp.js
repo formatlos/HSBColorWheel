@@ -1,5 +1,26 @@
-/**
- *  @author Martin Raedlinger (mr@formatlos.de)
+/*
+ * Copyright (c) 2012 Martin Raedlinger
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 
@@ -75,7 +96,7 @@ DemoApp = (function (window, $) {
 
 
             $('<span class="label">Info</span>').css({left:'600px', top:'10px'}).appendTo(_$controls);
-            $('<span class="label">get more info about the project and <br>the source code at <a href="https://github.com/formatlos/HSBColorWheel">github<a></span>')
+            $('<span class="label">get more info about the project and the source code <br>at <a href="http://github.com/formatlos/HSBColorWheel" target="_parent">http://github.com/formatlos/HSBColorWheel<a></span>')
                 .css({left:'600px', top:'32px', 'font-weight':'normal'}).appendTo(_$controls);
 
 
